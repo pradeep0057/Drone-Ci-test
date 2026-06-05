@@ -10,3 +10,4 @@ steps:
       - echo "Drone CI is working"
       - date
       - hostname
+      - echo "Second build"
