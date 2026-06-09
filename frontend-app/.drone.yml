@@ -5,14 +5,13 @@ name: deploy
 steps:
 
 - name: build-and-push
-
   image: plugins/ecr
 
   settings:
     repo: frontend-app
 
     registry:
-      from_secret: AWS_ACCOUNT_ID
+      from_secret: AWS_ECR_REGISTRY
 
     region:
       from_secret: AWS_REGION
@@ -28,7 +27,7 @@ steps:
 
 - name: deploy
 
-  image: amazon/aws-cli
+  image: bitnami/kubectl
 
   environment:
     AWS_ACCESS_KEY_ID:
@@ -44,13 +43,6 @@ steps:
       from_secret: EKS_CLUSTER_NAME
 
   commands:
-    - yum install -y curl
-    - curl -LO https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl
-    - chmod +x kubectl
-    - mv kubectl /usr/local/bin/
-
     - aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
-
-    - kubectl apply -f k8s/
-
+    - kubectl apply -f K8s/
     - kubectl rollout restart deployment/frontend-app -n dev
